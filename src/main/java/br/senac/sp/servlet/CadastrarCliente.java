@@ -1,0 +1,45 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package br.senac.sp.servlet;
+
+import br.senac.sp.dao.DAO;
+import br.senac.sp.entidade.Cliente;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public class CadastrarCliente extends HttpServlet {
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String nome = request.getParameter("nome");
+        String email = request.getParameter("email");
+        String cpfStr = request.getParameter("cpf");
+        Long cpf = Long.parseLong(cpfStr);
+        String data = request.getParameter("data");
+        
+        Cliente cliente = new Cliente(nome, email, cpf, data);
+        try {
+            DAO.addCliente(cliente);
+            response.sendRedirect("sucesso.jsp");
+        } catch (SQLException |  ClassNotFoundException ex) {
+            Logger.getLogger(CadastrarCliente.class.getName()).log(Level.SEVERE, null, ex);
+             request.setAttribute("msgErro", ex.getMessage());
+            RequestDispatcher requestDispatcher
+                    = getServletContext().getRequestDispatcher("/erro.jsp");
+            requestDispatcher.forward(request, response);
+
+        }
+    }
+}
